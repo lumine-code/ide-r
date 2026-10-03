@@ -1,4 +1,4 @@
-const { findOnPath } = require("../lib/server");
+const { resolveLiveRuntime } = require("./helpers/live-runtime");
 const path = require("node:path");
 const { LiveLspClient } = require("./helpers/live-lsp-client");
 const { createProject, removeProject } = require("./helpers/project");
@@ -8,9 +8,7 @@ const {
   exerciseUnicodeRename,
 } = require("./helpers/exercise-server");
 
-const runtime = process.env.R_LSP_PATH || findOnPath("Rscript");
-if (process.env.REQUIRE_R_LSP && !runtime)
-  throw new Error("CI requires Rscript and the real R languageserver package.");
+const runtime = resolveLiveRuntime();
 const liveSuite = runtime ? describe : xdescribe;
 
 liveSuite("ide-r real languageserver protocol", () => {
