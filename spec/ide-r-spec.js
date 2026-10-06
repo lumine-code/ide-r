@@ -163,10 +163,8 @@ describe("ide-r adapter services and configuration", () => {
       index_mode: "off",
       inlay_hints_minimum_arguments: 1,
     };
-    expect(adapter.getWorkspaceConfiguration("r.lsp")).toEqual(expected);
-    expect(adapter.getWorkspaceConfiguration("r")).toEqual({ lsp: expected });
     expect(adapter.getSettings()).toEqual({ r: { lsp: expected } });
-    expect(adapter.getWorkspaceConfiguration("unrelated")).toBeUndefined();
+    expect(adapter.getWorkspaceConfiguration).toBeUndefined();
   });
 
   it("suppresses reference lenses that require VS Code client commands", () => {
