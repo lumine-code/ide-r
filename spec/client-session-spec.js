@@ -85,7 +85,7 @@ liveSuite("ide-r actual editor service routing", () => {
     expect((await formatter.formatEntireFile(editor)).length).toBeGreaterThan(0);
     lumine.config.set("ide-r.features.format", false);
     expect(await service.activeSessionForFeature(editor, "textDocument/formatting")).toBeNull();
-    expect(await formatter.formatEntireFile(editor)).toEqual([]);
+    expect(await formatter.formatEntireFile(editor)).toBeNull();
     lumine.config.set("ide-r.features.format", true);
     expect(await service.activeSessionForFeature(editor, "textDocument/formatting")).toBe(session);
   });
