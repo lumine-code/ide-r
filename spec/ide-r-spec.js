@@ -109,6 +109,30 @@ describe("ide-r runtime discovery", () => {
       }),
     ).toBeNull();
   });
+  it("uses an explicit library without reading a corrupt managed installation", async () => {
+    const getManagedServer = jasmine
+      .createSpy("getManagedServer")
+      .and.throwError("Corrupt managed record");
+    const resolver = resolutionContext().resolver;
+    const select = resolver.select;
+    spyOn(resolver, "select").and.callFake(async (options) => {
+      const selected = await select(options);
+      expect(selected.source).toBe("configured");
+      throw new Error("Selected configured library");
+    });
+    spyOn(server, "resolveRuntime").and.resolveTo({ path: process.execPath, kind: "executable" });
+    const context = resolutionContext({ ...fixture, getManagedServer, resolver });
+    await expectAsync(
+      server.resolveServer(context, {
+        serverPath: process.execPath,
+        libraryPath: fixture.rootPath,
+      }),
+    ).toBeRejectedWithError("Selected configured library");
+    expect(getManagedServer).not.toHaveBeenCalled();
+    await expectAsync(
+      server.resolveServer(context, { serverPath: process.execPath }),
+    ).toBeRejectedWithError("Corrupt managed record");
+  });
 
   it("refuses CRAN mirror schemes that cannot serve package downloads", async () => {
     spyOn(server, "resolveRuntime").and.resolveTo({ path: process.execPath, kind: "executable" });
