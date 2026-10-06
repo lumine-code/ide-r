@@ -38,7 +38,9 @@ liveSuite("ide-r real languageserver protocol", () => {
         throw new Error("The real R server is missing.");
       },
     });
-    const launch = await client.adapter.resolveServer({ rootPath: fixture.rootPath });
+    const launch = await client.adapter.resolveServer(
+      resolutionContext({ rootPath: fixture.rootPath }),
+    );
     if (process.env.R_LSP_VERSION) expect(launch.version).toBe(process.env.R_LSP_VERSION);
     await client.start();
   });
@@ -74,7 +76,10 @@ liveSuite("ide-r real languageserver protocol", () => {
       const storagePath = path.join(staging.rootPath, "managed");
       try {
         const installed = await server.installServer(
-          { storagePath, api: { setServerInstallationStatus() {} } },
+          {
+            storagePath,
+            api: { resolver: resolutionContext().resolver, setServerInstallationStatus() {} },
+          },
           { serverPath: runtime, downloadMethod: process.env.R_LSP_DOWNLOAD_METHOD || "auto" },
         );
         expect(installed.version).toMatch(/^\d+(?:\.\d+)+$/);
@@ -103,3 +108,4 @@ liveSuite("ide-r real languageserver protocol", () => {
       }
     }, 600000);
 });
+const { resolutionContext } = require("./helpers/server-resolution");

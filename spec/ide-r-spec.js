@@ -1,3 +1,4 @@
+const { resolutionContext, findOnPath } = require("./helpers/server-resolution");
 const fs = require("node:fs");
 const path = require("node:path");
 const { createProject, removeProject } = require("./helpers/project");
@@ -15,16 +16,21 @@ describe("ide-r runtime discovery", () => {
   });
 
   it("prefers an explicit runtime and rejects invalid files before switching servers", async () => {
-    expect(await server.resolveRuntime(process.execPath, { PATH: "" })).toBe(process.execPath);
-    await expectAsync(server.resolveRuntime(path.join(fixture.rootPath, "missing"))).toBeRejected();
-    await expectAsync(server.resolveRuntime(fixture.rootPath)).toBeRejected();
+    expect(
+      (await server.resolveRuntime(resolutionContext(), process.execPath, { PATH: "" }))?.path ??
+        null,
+    ).toBe(process.execPath);
+    await expectAsync(
+      server.resolveRuntime(resolutionContext(), path.join(fixture.rootPath, "missing")),
+    ).toBeRejected();
+    await expectAsync(server.resolveRuntime(resolutionContext(), fixture.rootPath)).toBeRejected();
   });
 
   it("finds an executable on PATH and skips directories", () => {
     const name = path.basename(process.execPath, path.extname(process.execPath));
-    expect(server.findOnPath(name, { PATH: path.dirname(process.execPath) })).toBeTruthy();
+    expect(findOnPath(name, { PATH: path.dirname(process.execPath) })).toBeTruthy();
     fs.mkdirSync(path.join(fixture.rootPath, "Rscript"));
-    expect(server.findOnPath("Rscript", { PATH: fixture.rootPath })).toBeNull();
+    expect(findOnPath("Rscript", { PATH: fixture.rootPath })).toBeNull();
   });
 
   it("describes current and historical R_HOME layouts on Windows and macOS", () => {
@@ -49,6 +55,23 @@ describe("ide-r runtime discovery", () => {
       R_LIBS: `/selected${path.delimiter}existing`,
     });
     expect(server.libraryEnvironment("", {})).toEqual({});
+  });
+  it("rejects a broken selected library before probing a different installed package", async () => {
+    spyOn(server, "resolveRuntime").and.resolveTo({ path: process.execPath, kind: "executable" });
+    await expectAsync(
+      server.resolveServer(resolutionContext(), {
+        libraryPath: path.join(fixture.rootPath, "missing-library"),
+      }),
+    ).toBeRejected();
+    const library = path.join(fixture.rootPath, "managed", "library");
+    fs.mkdirSync(library, { recursive: true });
+    await expectAsync(
+      server.resolveServer(
+        resolutionContext({
+          managedServer: { modulePath: path.join(library, "languageserver", "DESCRIPTION") },
+        }),
+      ),
+    ).toBeRejected();
   });
 
   it("repairs only unsupported POSIX UTF-8 locales for native Windows R children", () => {
@@ -79,11 +102,16 @@ describe("ide-r runtime discovery", () => {
 
   it("returns null when R is unavailable", async () => {
     spyOn(server, "resolveRuntime").and.resolveTo(null);
-    expect(await server.resolveServer("", "")).toBeNull();
+    expect(
+      await server.resolveServer(resolutionContext({ managedServer: null }), {
+        serverPath: "",
+        libraryPath: "",
+      }),
+    ).toBeNull();
   });
 
   it("refuses CRAN mirror schemes that cannot serve package downloads", async () => {
-    spyOn(server, "resolveRuntime").and.resolveTo(process.execPath);
+    spyOn(server, "resolveRuntime").and.resolveTo({ path: process.execPath, kind: "executable" });
     await expectAsync(
       server.installServer(
         { storagePath: fixture.rootPath, api: { setServerInstallationStatus() {} } },

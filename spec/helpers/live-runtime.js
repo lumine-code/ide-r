@@ -1,10 +1,11 @@
+const { findOnPath } = require("./server-resolution");
 const childProcess = require("node:child_process");
 
 // A runner may provide R without the separately installed languageserver package.
 // Probe only that prerequisite; a server that starts and then fails still fails its specs.
 exports.resolveLiveRuntime = (env = process.env) => {
   const server = require("../../lib/server");
-  const runtime = env.R_LSP_PATH || server.findOnPath("Rscript", env);
+  const runtime = env.R_LSP_PATH || findOnPath("Rscript", env);
   const missing = () => {
     if (env.REQUIRE_R_LSP || env.REQUIRE_R_MANAGED_INSTALL)
       throw new Error("CI requires Rscript and the real R languageserver package.");
