@@ -2,7 +2,7 @@
 
 Provide R language intelligence through languageserver.
 
-Registers the [R languageserver](https://github.com/REditorSupport/languageserver) with `ide-client` for R source files.
+Registers the [R languageserver](https://github.com/REditorSupport/languageserver) with `ide` for R source files.
 
 ## Features
 
@@ -20,7 +20,7 @@ Registers the [R languageserver](https://github.com/REditorSupport/languageserve
 
 To install `ide-r` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/ide-r`.
 
-Install `ide-client`, `language-r` and [R](https://www.r-project.org/). The adapter discovers Rscript on PATH, through R_HOME or in a standard Windows or macOS installation; otherwise select it in Rscript Path. Install `languageserver` through `ide-client:manage-servers`, or run `install.packages("languageserver")` in R. Install frontends such as `autocomplete`, `linter`, `hover`, `hyperclick`, `refactor` and `code-format` to display the results.
+Install `ide`, `language-r` and [R](https://www.r-project.org/). The adapter discovers Rscript on PATH, through R_HOME or in a standard Windows or macOS installation; otherwise select it in Rscript Path. Install `languageserver` through `ide:manage-servers`, or run `install.packages("languageserver")` in R. Install frontends such as `autocomplete`, `linter`, `hover`, `hyperclick`, `refactor` and `code-format` to display the results.
 
 Managed installation uses the selected R runtime and may compile dependencies on platforms without CRAN binaries. Linux therefore needs the build tools and system libraries listed in the upstream installation instructions. R itself is installed separately.
 
@@ -32,7 +32,7 @@ The adapter serves plain R files. Notebook execution and kernel completions rema
 
 ## Services
 
-- `ide-client`: consumed to register R languageserver with the editor's language-server client.
+- `ide`: consumed to register R languageserver with the editor's language-server client.
 - `background-tips.provider`: provided to explain R intelligence independent of notebook kernels.
 
 ## Contributing

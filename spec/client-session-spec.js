@@ -26,14 +26,13 @@ liveSuite("ide-r actual editor service routing", () => {
     jasmine.useRealClock();
     fixture = createProject();
     paths = lumine.project.getPaths();
-    for (const name of ["language-r", "ide-client", "ide-r"])
-      await lumine.packages.activatePackage(name);
+    for (const name of ["language-r", "ide", "ide-r"]) await lumine.packages.activatePackage(name);
     lumine.config.set("ide-r.serverPath", runtime);
     if (process.env.R_LSP_LIBRARY)
       lumine.config.set("ide-r.libraryPath", process.env.R_LSP_LIBRARY);
     lumine.config.set("ide-r.parseDelay", 0);
     lumine.config.set("ide-r.diagnosticsDelay", 0);
-    service = lumine.packages.getActivePackage("ide-client").mainModule.provideIdeClient();
+    service = lumine.packages.getActivePackage("ide").mainModule.provideIde();
     lumine.project.setPaths([fixture.rootPath]);
     editor = await lumine.workspace.open(fixture.filePath);
     editor.setGrammar(lumine.grammars.grammarForScopeName("source.r"));
@@ -41,7 +40,7 @@ liveSuite("ide-r actual editor service routing", () => {
   afterEach(async () => {
     editor?.destroy();
     await lumine.packages.deactivatePackage("ide-r");
-    await lumine.packages.deactivatePackage("ide-client");
+    await lumine.packages.deactivatePackage("ide");
     await lumine.packages.deactivatePackage("language-r");
     for (const key of [
       "serverPath",
@@ -66,7 +65,7 @@ liveSuite("ide-r actual editor service routing", () => {
 
   it("routes actual completion and formatting, respects switches and disables VS Code lenses", async () => {
     const session = await sessionFor();
-    const clientMain = lumine.packages.getActivePackage("ide-client").mainModule;
+    const clientMain = lumine.packages.getActivePackage("ide").mainModule;
     expect(session.capabilities.codeLensProvider).toBe(false);
     expect(session.supports("textDocument/codeLens", editor)).toBe(false);
     const point = position(fixture.text, "add(1, 2)", 2);

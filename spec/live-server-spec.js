@@ -29,7 +29,7 @@ liveSuite("ide-r real languageserver protocol", () => {
       lumine.config.set("ide-r.libraryPath", process.env.R_LSP_LIBRARY);
     lumine.config.set("ide-r.parseDelay", 0);
     lumine.config.set("ide-r.diagnosticsDelay", 0);
-    registration = main.consumeIdeClient({
+    registration = main.consumeIde({
       registerAdapter(adapter) {
         client = new LiveLspClient(adapter, fixture.rootPath);
         return { dispose() {} };

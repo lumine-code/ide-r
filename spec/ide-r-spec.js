@@ -150,7 +150,7 @@ describe("ide-r adapter services and configuration", () => {
   beforeEach(async () => {
     main = (await lumine.packages.activatePackage("ide-r")).mainModule;
     cleanup = jasmine.createSpy("removeAdapter");
-    disposable = main.consumeIdeClient({
+    disposable = main.consumeIde({
       registerAdapter(value) {
         adapter = value;
         return { dispose: cleanup };
@@ -182,7 +182,7 @@ describe("ide-r adapter services and configuration", () => {
 
   it("keeps provider edges independent and reacquires the module after reload", async () => {
     const secondCleanup = jasmine.createSpy("secondCleanup");
-    const second = main.consumeIdeClient({
+    const second = main.consumeIde({
       registerAdapter() {
         return { dispose: secondCleanup };
       },
@@ -234,7 +234,7 @@ describe("ide-r adapter services and configuration", () => {
     spyOn(server, "resolveServer").and.resolveTo(null);
     let registered;
     const missing = jasmine.createSpy("missing");
-    const edge = main.consumeIdeClient({
+    const edge = main.consumeIde({
       registerAdapter(value) {
         registered = value;
         return { dispose() {} };
