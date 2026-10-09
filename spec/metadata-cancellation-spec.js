@@ -3,6 +3,7 @@ const path = require("node:path");
 const Module = require("node:module");
 const { promisify } = require("node:util");
 const childProcess = require("node:child_process");
+const { EventEmitter } = require("node:events");
 
 describe("R metadata and installer lifetime", () => {
   let server, controller, execute, nativeJob;
@@ -37,8 +38,20 @@ describe("R metadata and installer lifetime", () => {
     controller = new AbortController();
     nativeJob = null;
     const originalLoad = Module._load;
-    const controlledExec = () => {
-      throw new Error("Unexpected callback-style invocation");
+    const controlledExec = (command, args, options, callback) => {
+      if (command !== marker) throw new Error("Unexpected external executable");
+      const child = new EventEmitter();
+      execute(args, options).then(
+        (value) => {
+          callback(null, value.stdout, value.stderr || "");
+          child.emit("close", 0, null);
+        },
+        (error) => {
+          callback(error, "", "");
+          child.emit("close", null, null);
+        },
+      );
+      return child;
     };
     controlledExec[promisify.custom] = (command, args, options) => {
       if (command !== marker) throw new Error("Unexpected external executable");
