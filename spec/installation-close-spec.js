@@ -3,6 +3,7 @@ const path = require("node:path");
 const os = require("node:os");
 const childProcess = require("node:child_process");
 const { EventEmitter } = require("node:events");
+const { promisify } = require("node:util");
 
 describe("R installation process retirement", () => {
   let server, directory, child, complete;
@@ -10,10 +11,24 @@ describe("R installation process retirement", () => {
     await lumine.packages.deactivatePackage("ide-r");
     if (lumine.packages.isPackageLoaded("ide-r")) await lumine.packages.unloadPackage("ide-r");
     child = new EventEmitter();
-    spyOn(childProcess, "execFile").and.callFake((_command, _args, _options, callback) => {
-      complete = callback;
-      return child;
-    });
+    const execute = spyOn(childProcess, "execFile").and.callFake(
+      (_command, _args, _options, callback) => {
+        complete = callback;
+        return child;
+      },
+    );
+    // Preserve Node's custom promisify contract on this controlled boundary so
+    // the original implementation and the close-owned one see the same API.
+    execute[promisify.custom] = (...args) =>
+      new Promise((resolve, reject) =>
+        execute(...args, (error, stdout, stderr) => {
+          if (error) {
+            error.stdout = stdout;
+            error.stderr = stderr;
+            reject(error);
+          } else resolve({ stdout, stderr });
+        }),
+      );
     await lumine.packages.activatePackage("ide-r");
     server = require("../lib/server");
     spyOn(server, "resolveRuntime").and.resolveTo({ path: "controlled-rscript" });
@@ -55,5 +70,25 @@ describe("R installation process retirement", () => {
       await observed;
     }
     await expectAsync(pending).toBeRejectedWith(reason);
+  });
+  it("preserves the live process failure and its stdout and stderr diagnostics", async () => {
+    const pending = server.installServer({
+      storagePath: directory,
+      api: { resolver: {}, setServerInstallationStatus() {} },
+    });
+    await conditionPromise(() => childProcess.execFile.calls.any());
+    const failure = Object.assign(new Error("R install failed"), { code: 2 });
+    complete(failure, "Controlled output", "Controlled diagnostic");
+    child.emit("close", 2, null);
+    let rejected;
+    try {
+      await pending;
+    } catch (error) {
+      rejected = error;
+    }
+    expect(rejected).toBe(failure);
+    expect(rejected?.stdout).toBe("Controlled output");
+    expect(rejected?.stderr).toBe("Controlled diagnostic");
+    expect(rejected?.code).toBe(2);
   });
 });
