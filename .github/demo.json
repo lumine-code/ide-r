@@ -1,0 +1,17 @@
+{
+  "title": "ide-r",
+  "description": "The R language server identifies a syntax error in an expression.",
+  "recordedOn": "2026-10-13",
+  "sourceRevision": "1fa8dc890c1d10bf9f6a3dfbfee65f431be27119",
+  "mode": "normal",
+  "fontSettings": "default",
+  "themeSourceRevision": "6564a9e21899b5541e9c8f8006f9be6d6d72e6ad",
+  "images": [
+    {
+      "file": "demo.png",
+      "label": "The R language server identifies a syntax error in an expression.",
+      "width": 1100,
+      "height": 490
+    }
+  ]
+}

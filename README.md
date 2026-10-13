@@ -16,6 +16,8 @@ Registers the [R languageserver](https://github.com/REditorSupport/languageserve
 - **Managed install**: installs languageserver and its dependencies into a private R library.
 - **Project sessions**: starts one server per project root when an R editor opens.
 
+![The R language server identifies a syntax error in an expression.](.github/demo.png)
+
 ## Installation
 
 To install `ide-r` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/ide-r`.
