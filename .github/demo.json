@@ -2,10 +2,10 @@
   "title": "ide-r",
   "description": "The R language server identifies a syntax error in an expression.",
   "recordedOn": "2026-10-13",
-  "sourceRevision": "1fa8dc890c1d10bf9f6a3dfbfee65f431be27119",
+  "sourceRevision": "393b262cd3b410725ad44820506f6d6539cacb8c",
   "mode": "normal",
   "fontSettings": "default",
-  "themeSourceRevision": "6564a9e21899b5541e9c8f8006f9be6d6d72e6ad",
+  "themeSourceRevision": "238acc5a7bb595b91dad9b7ef2d0ddfefef44db4",
   "images": [
     {
       "file": "demo.png",
