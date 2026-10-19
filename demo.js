@@ -5,7 +5,7 @@ module.exports = {
     "language-r",
     "marker",
     "linter",
-    "linter-panel",
+    "diagnostics",
     "documentation-view",
     "hover",
     "ide",
