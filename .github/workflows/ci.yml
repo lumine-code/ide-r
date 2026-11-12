@@ -41,7 +41,7 @@ jobs:
     env:
       LUMINE_JASMINE_REPORTER: list
       LUMINE_TEST_PACKAGES: ide language-r
-      R_LSP_VERSION: 0.3.20
+      R_LSP_VERSION: 0.3.21
       REQUIRE_R_LSP: 1
       REQUIRE_R_MANAGED_INSTALL: 1
     steps:
