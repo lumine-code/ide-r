@@ -91,4 +91,39 @@ describe("R installation process retirement", () => {
     expect(rejected?.stderr).toBe("Controlled diagnostic");
     expect(rejected?.code).toBe(2);
   });
+  for (const [name, report] of [
+    ["server-only", "LUMINE_SERVER_VERSION=0.3.20\n"],
+    [
+      "unverified minimum",
+      "LUMINE_BACKENDS_VERIFIED=styler>=1.5.1;lintr>=3.3.0\nLUMINE_SERVER_VERSION=0.3.20\n",
+    ],
+  ]) {
+    it(`refuses a ${name} installation report`, async () => {
+      const pending = server.installServer({
+        storagePath: directory,
+        api: { resolver: {}, setServerInstallationStatus() {} },
+      });
+      await conditionPromise(() => childProcess.execFile.calls.any());
+      complete(null, report, "");
+      child.emit("close", 0, null);
+      await expectAsync(pending).toBeRejectedWithError(/verifying the styler and lintr/);
+    });
+  }
+  it("accepts a closed installation with the exact verified feature backends", async () => {
+    const pending = server.installServer({
+      storagePath: directory,
+      api: { resolver: {}, setServerInstallationStatus() {} },
+    });
+    await conditionPromise(() => childProcess.execFile.calls.any());
+    complete(
+      null,
+      "LUMINE_BACKENDS_VERIFIED=styler>=1.5.1;lintr>=3.3.0-1\nLUMINE_SERVER_VERSION=0.3.20\n",
+      "",
+    );
+    child.emit("close", 0, null);
+    expect(await pending).toEqual({
+      version: "0.3.20",
+      module: path.join("library", "languageserver", "DESCRIPTION"),
+    });
+  });
 });

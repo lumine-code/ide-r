@@ -10,8 +10,11 @@ const at = (client, fixture, method, fragment, inside = 0, extra = {}) =>
 
 const exerciseIntelligence = async (client, fixture) => {
   const results = [];
-  const check = (name, condition) => {
-    assert.ok(condition, `${name} returned no usable result`);
+  const check = (name, condition, context) => {
+    assert.ok(
+      condition,
+      `${name} returned no usable result${context ? `; fixture response: ${JSON.stringify(context)}` : ""}`,
+    );
     results.push(name);
   };
   client.open(fixture.uri, "r", fixture.text);
@@ -54,9 +57,21 @@ const exerciseIntelligence = async (client, fixture) => {
   const symbols = await client.request("textDocument/documentSymbol", {
     textDocument: { uri: fixture.uri },
   });
+  const section = symbols.find(({ name }) => name === "Arithmetic helpers");
+  const wrapper = section?.children?.find(({ name }) => name === "wrapper");
   check(
     "document symbols",
-    symbols.some(({ name }) => name === "wrapper"),
+    section?.kind === 15 &&
+      section.range.start.line === 0 &&
+      section.range.start.character === 0 &&
+      wrapper?.kind === 12 &&
+      wrapper.range.start.line === position(fixture.text, "wrapper <-").line &&
+      (wrapper.range.end.line > wrapper.range.start.line ||
+        wrapper.range.end.character > wrapper.range.start.character) &&
+      (section.range.end.line > wrapper.range.end.line ||
+        (section.range.end.line === wrapper.range.end.line &&
+          section.range.end.character >= wrapper.range.end.character)),
+    symbols,
   );
   const projectSymbols = await client.request("workspace/symbol", { query: "workspace_helper" });
   check(

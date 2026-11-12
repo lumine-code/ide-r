@@ -13,7 +13,7 @@ Registers the [R languageserver](https://github.com/REditorSupport/languageserve
 - **Formatting**: formats documents and selections through styler.
 - **Presentation**: provides semantic highlighting and parameter-name inlay hints.
 - **Hierarchy**: exposes server call and type relationships to hierarchy-view.
-- **Managed install**: installs languageserver and its dependencies into a private R library.
+- **Managed install**: installs languageserver, styler and lintr into a private R library.
 - **Project sessions**: starts one server per project root when an R editor opens.
 
 ![The R language server identifies a syntax error in an expression.](.github/demo.png)
@@ -22,7 +22,7 @@ Registers the [R languageserver](https://github.com/REditorSupport/languageserve
 
 To install `ide-r` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/ide-r`.
 
-Install `ide`, `language-r` and [R](https://www.r-project.org/). The adapter discovers Rscript on PATH, through R_HOME or in a standard Windows or macOS installation; otherwise select it in Rscript Path. Install `languageserver` through `ide:manage-servers`, or run `install.packages("languageserver")` in R. Install frontends such as `autocomplete`, `linter`, `hover`, `hyperclick`, `refactor` and `code-format` to display the results.
+Install `ide`, `language-r` and [R](https://www.r-project.org/). The adapter discovers Rscript on PATH, through R_HOME or in a standard Windows or macOS installation; otherwise select it in Rscript Path. Install the server and its formatting and diagnostics backends through `ide:manage-servers`, or run `install.packages(c("languageserver", "styler", "lintr"))` in R. Install frontends such as `autocomplete`, `linter`, `hover`, `hyperclick`, `refactor` and `code-format` to display the results.
 
 Managed installation uses the selected R runtime and may compile dependencies on platforms without CRAN binaries. Linux therefore needs the build tools and system libraries listed in the upstream installation instructions. R itself is installed separately.
 

@@ -77,9 +77,14 @@ jobs:
         shell: Rscript {0}
         run: |
           options(repos = c(CRAN = "https://cloud.r-project.org"))
-          install.packages("remotes")
+          install.packages(c("remotes", "styler", "lintr"))
           remotes::install_version("languageserver", version = Sys.getenv("R_LSP_VERSION"), upgrade = "never")
           stopifnot(as.character(packageVersion("languageserver")) == Sys.getenv("R_LSP_VERSION"))
+          required <- c(styler = "1.5.1", lintr = "3.3.0-1")
+          for (package in names(required)) {
+            stopifnot(requireNamespace(package, quietly = TRUE))
+            stopifnot(packageVersion(package) >= package_version(required[[package]]))
+          }
       - name: Use HTTPS for public Git dependencies
         run: git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
       - name: Install adapter dependencies

@@ -10,7 +10,9 @@ describe("R metadata and installer lifetime", () => {
   const marker = path.join(__dirname, "controlled-rscript");
   const originalRun = promisify(childProcess.execFile);
   const result = { stdout: "0.3.20\n" };
-  const installed = { stdout: "LUMINE_SERVER_VERSION=0.3.20\n" };
+  const installed = {
+    stdout: "LUMINE_BACKENDS_VERIFIED=styler>=1.5.1;lintr>=3.3.0-1\nLUMINE_SERVER_VERSION=0.3.20\n",
+  };
   function deferred() {
     let resolve;
     const promise = new Promise((done) => {
